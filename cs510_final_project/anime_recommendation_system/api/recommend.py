@@ -40,7 +40,7 @@ def train_model(trainset, load=True):
     return algo
 
 def test_model(trainset, algo):
-    testset = trainset.build_testset()
+    testset = trainset.build_anti_testset()
     predictions = algo.test(testset)
     # RMSE should be low as we are biased
     accuracy.rmse(predictions, verbose=True)  # ~ 0.68 (which is low)
@@ -85,9 +85,27 @@ def get_top_n(predictions, n=10):
 
     return top_n
 
+def get_top_n_recommendations(predictions, n=10):
+    # Sort the predictions by estimated ratings and return the top N
+    predictions.sort(key=lambda x: x.est, reverse=True)
+    return predictions[:n]
 
+def get_all_anime_ids():
+    anime_data = pd.read_csv('../../../archive/anime_cleaned.csv')
+    return set(anime_data['anime_id'])
+
+def filter_unwatched_anime(all_anime_ids, user_anime_list):
+    # Get all anime id's for any status in user_anime_list that is not "plan_to_watch"
+    excluded_anime_ids = user_anime_list[user_anime_list["status"] != "plan_to_watch"]["anime_id"]
+
+    return set(all_anime_ids - set(excluded_anime_ids))
+
+def predict_ratings_for_unwatched(user, unwatched_anime_ids, algo):
+    predictions = [algo.predict(user, anime_id) for anime_id in unwatched_anime_ids]
+    return predictions
 
 if __name__ == "__main__":
+
     LOAD = True
     set_seed(0)
 
@@ -95,20 +113,36 @@ if __name__ == "__main__":
     trainset = data.build_full_trainset()
 
     algo = train_model(trainset, load=LOAD)
-    predictions = test_model(trainset, algo)
-    top_n =  get_top_n(predictions)
-    # Print the recommended items for each user
-    for uid, user_ratings in top_n.items():
-        print(uid, [iid for (iid, _) in user_ratings])
+    # predictions = test_model(trainset, algo)
+    # top_n =  get_top_n(predictions)
+    # # Print the recommended items for each user
+    # for uid, user_ratings in top_n.items():
+    #     print(uid, [iid for (iid, _) in user_ratings])
 
-    from api import get_user_anime_list
+
+    ids = get_all_anime_ids()
+
+    from api import get_user_anime_list, get_anime_data
 
     username = 'Damonashu'
     user_anime_list = get_user_anime_list(username)
-    print(user_anime_list)
 
-    predictions = predict_user_recommendations(user_anime_list, algo)
-    top_n =  get_top_n(predictions)
-    # Print the recommended items for each user
-    for uid, user_ratings in top_n.items():
-        print(uid, [iid for (iid, _) in user_ratings])
+    unwatched_anime_ids = filter_unwatched_anime(ids, user_anime_list)
+    predictions = predict_ratings_for_unwatched(username, unwatched_anime_ids, algo)
+
+    top_recommendations = get_top_n_recommendations(predictions)
+
+    for pred in top_recommendations:
+        anime_data = get_anime_data(pred.iid)
+        print(anime_data)
+        print(f"Anime : {pred.iid}, Estimated Rating: {pred.est}")
+        print("\n\n")
+    # print([(pred.iid, pred.est) for pred in top_recommendations])
+
+    
+
+    # predictions = predict_user_recommendations(user_anime_list, algo)
+    # top_n =  get_top_n(predictions)
+    # # Print the recommended items for each user
+    # for uid, user_ratings in top_n.items():
+    #     print(uid, [iid for (iid, _) in user_ratings])

@@ -48,7 +48,7 @@ def get_user_anime_list(username):
     if response.status_code == 200:
         anime_list = response.json()
         user_scores = []
-        print(anime_list['data'])
+
         for entry in anime_list['data']:
             status = entry['list_status']['status']
             title = entry['node']['title']
@@ -56,7 +56,7 @@ def get_user_anime_list(username):
             user_score = entry['list_status']['score']
             user_scores.append((username, anime_id, user_score, status, title))
         
-        df = pd.DataFrame(user_scores, columns=["username", "anime_id", "my_score"])
+        df = pd.DataFrame(user_scores, columns=["username", "anime_id", "my_score", "status", "title"])
         return df
     else:
         print(f"Failed to retrieve anime list. Status code: {response.status_code}")
@@ -102,7 +102,7 @@ def get_anime_data(anime_id):
         anime_id = anime_data['id']
         synopsis = anime_data['synopsis']
         title = anime_data['title']
-        picture_url = anime_data['main_picture']['mediuim']
+        picture_url = anime_data['main_picture']['medium']
         score = anime_data['mean']
         num_scoring_user = anime_data['num_scoring_users']
         anime_detail.append((anime_data, anime_id, synopsis, title, picture_url, score, num_scoring_user))
