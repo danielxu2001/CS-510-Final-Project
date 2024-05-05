@@ -9,11 +9,16 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            background-image: url("../background.jpeg");
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            z-index: -1;
         }
         .container {
-            max-width: 800px;
-            margin: 20px auto;
+            width: 800px;
             padding: 20px;
             background-color: #fff;
             border-radius: 5px;
@@ -58,7 +63,7 @@
     <div class="container">
         <h1>Recommendation System</h1>
         <form action="#" method="post">
-            <input type="text" name="query" placeholder="Enter your query...">
+            <input type="text" name="query" placeholder="Enter your username...">
             <input type="submit" value="Search">
         </form>
         <div class="results">
