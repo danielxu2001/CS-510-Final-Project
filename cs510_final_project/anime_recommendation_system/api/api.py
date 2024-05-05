@@ -54,7 +54,6 @@ def get_user_anime_list(username):
             title = entry['node']['title']
             anime_id = entry['node']['id']
             user_score = entry['list_status']['score']
-            # status = entry['list_status']
             user_scores.append((username, anime_id, user_score, status, title))
         
         df = pd.DataFrame(user_scores, columns=["username", "anime_id", "my_score"])

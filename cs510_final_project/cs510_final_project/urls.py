@@ -19,4 +19,5 @@ from anime_recommendation_system import views
 
 urlpatterns = [
     path('', views.my_view),  # Map the URL pattern to your view function
+    path('search/', views.search, name='search')
 ]
