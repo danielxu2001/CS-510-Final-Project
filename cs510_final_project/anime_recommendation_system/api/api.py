@@ -1,6 +1,7 @@
 import requests
 from dotenv import load_dotenv
 import os
+import pandas as pd
 
 # Load environment variables from .env file
 load_dotenv()
@@ -51,14 +52,16 @@ def get_user_anime_list(username):
             anime_id = entry['node']['id']
             user_score = entry['list_status']['score']
             user_scores.append((username, anime_id, user_score))
-        return user_scores
+        
+        df = pd.DataFrame(user_scores, columns=["username", "anime_id", "my_score"])
+        return df
     else:
         print(f"Failed to retrieve anime list. Status code: {response.status_code}")
         return None
 
-# Example usage:
-username = 'relight'
-anime_scores = get_user_anime_list(username)
-if anime_scores:
-    for username, anime_id, user_score in anime_scores:
-        print("Username: {}, Anime ID: {}, Score: {}".format(username, anime_id, user_score))
+# # Example usage:
+# username = 'relight'
+# anime_scores = get_user_anime_list(username)
+# if anime_scores:
+#     for username, anime_id, user_score in anime_scores:
+#         print("Username: {}, Anime ID: {}, Score: {}".format(username, anime_id, user_score))

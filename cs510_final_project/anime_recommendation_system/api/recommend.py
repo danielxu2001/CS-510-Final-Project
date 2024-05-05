@@ -11,7 +11,7 @@ def set_seed(seed):
     np.random.seed(seed)
 
 def read_data(nrows=None):
-    user_ratings = pd.read_csv('archive/animelists_cleaned.csv', nrows=nrows)
+    user_ratings = pd.read_csv('../../../archive/animelists_cleaned.csv', nrows=nrows)
 
     # Only consider shows that user has completed
     user_ratings = user_ratings[user_ratings["my_status"] == 2]
@@ -44,6 +44,17 @@ def test_model(trainset, algo):
     predictions = algo.test(testset)
     # RMSE should be low as we are biased
     accuracy.rmse(predictions, verbose=True)  # ~ 0.68 (which is low)
+
+    return predictions
+
+def predict_user_recommendations(user_anime_list, algo):
+    # Predict the ratings for the user
+    predictions = []
+    for _, row in user_anime_list.iterrows():
+        uid = row["username"]
+        iid = row["anime_id"]
+        pred = algo.predict(uid, iid)
+        predictions.append(pred)
 
     return predictions
 
@@ -90,3 +101,14 @@ if __name__ == "__main__":
     for uid, user_ratings in top_n.items():
         print(uid, [iid for (iid, _) in user_ratings])
 
+    from api import get_user_anime_list
+
+    username = 'Damonashu'
+    user_anime_list = get_user_anime_list(username)
+    print(user_anime_list)
+
+    predictions = predict_user_recommendations(user_anime_list, algo)
+    top_n =  get_top_n(predictions)
+    # Print the recommended items for each user
+    for uid, user_ratings in top_n.items():
+        print(uid, [iid for (iid, _) in user_ratings])

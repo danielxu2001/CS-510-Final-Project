@@ -3,3 +3,4 @@ archive.zip
 archive
 .venv
 .env
+__pycache__
