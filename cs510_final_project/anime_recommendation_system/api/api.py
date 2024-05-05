@@ -62,14 +62,6 @@ def get_user_anime_list(username):
         print(f"Failed to retrieve anime list. Status code: {response.status_code}")
         return None
 
-# Example usage:
-# username = 'relight'
-# anime_scores = get_user_anime_list(username)
-# print(anime_scores)
-# if anime_scores:
-#     for username, anime_id, user_score in anime_scores:
-#         print("Username: {}, Anime ID: {}, Score: {}".format(username, anime_id, user_score))
-
 
 def get_anime_data(anime_id):
     """
@@ -94,10 +86,8 @@ def get_anime_data(anime_id):
 
     # Make GET request to fetch anime data
     response = requests.get(url, params=params, headers=headers)
-    anime_detail = []
     # Check if request was successful
     if response.status_code == 200:
-        anime_detail = []
         anime_data = response.json()
         anime_id = anime_data['id']
         synopsis = anime_data['synopsis']
@@ -105,7 +95,19 @@ def get_anime_data(anime_id):
         picture_url = anime_data['main_picture']['medium']
         score = anime_data['mean']
         num_scoring_user = anime_data['num_scoring_users']
-        anime_detail.append((anime_data, anime_id, synopsis, title, picture_url, score, num_scoring_user))
+        genres = ', '.join(genre['name'] for genre in anime_data.get('genres', []))
+        # Add the anime data to a pandas series
+        anime_detail = pd.Series({
+            'anime_id': anime_id,
+            'synopsis': synopsis,
+            'title': title,
+            'picture_url': picture_url,
+            'score': score,
+            'num_scoring_users': num_scoring_user,
+            'genres': genres
+        })
+
+        
         return anime_detail
     else:
         print(f"Failed to retrieve anime data. Status code: {response.status_code}")
@@ -116,12 +118,12 @@ def get_anime_data(anime_id):
 # anime_data = get_anime_data(anime_id)
 # print(anime_data)
 
-def generate_html_table(anime_data_list):
+def generate_html_table(anime_data_df):
     """
     Generates an HTML table from a list of anime data.
 
     Args:
-        anime_data_list (list of dicts): A list of dictionaries containing anime data.
+        anime_data_df (pd.DataFrame): DataFrame containing anime data.
 
     Returns:
         str: HTML markup for the table.
@@ -138,13 +140,14 @@ def generate_html_table(anime_data_list):
         </tr>
     """
 
-    for anime_data in anime_data_list:
-        image_url = anime_data.get('main_picture', {}).get('large', '')
-        title = anime_data.get('title', '')
-        genres = ', '.join(genre['name'] for genre in anime_data.get('genres', []))
-        synopsis = anime_data.get('synopsis', '')
-        score = anime_data.get('mean', '')
-        num_scored_users = anime_data.get('num_scoring_users', '')
+
+    for idx, anime_data in anime_data_df.iterrows():
+        synopsis = anime_data['synopsis']
+        title = anime_data['title']
+        image_url = anime_data['picture_url']
+        score = anime_data['score']
+        num_scoring_user = anime_data['num_scoring_users']
+        genres = anime_data['genres']
 
         table_html += f"""
         <tr>
@@ -153,7 +156,7 @@ def generate_html_table(anime_data_list):
             <td>{genres}</td>
             <td>{synopsis}</td>
             <td>{score}</td>
-            <td>{num_scored_users}</td>
+            <td>{num_scoring_user}</td>
         </tr>
         """
 

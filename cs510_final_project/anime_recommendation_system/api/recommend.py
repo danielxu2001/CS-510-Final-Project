@@ -5,13 +5,14 @@ import joblib
 import random
 import numpy as np
 from collections import defaultdict
+import os
 
 def set_seed(seed):
     random.seed(seed)
     np.random.seed(seed)
 
-def read_data(nrows=None):
-    user_ratings = pd.read_csv('../../../archive/animelists_cleaned.csv', nrows=nrows)
+def read_data(nrows=None, filepath='../../../archive/animelists_cleaned.csv'):
+    user_ratings = pd.read_csv(filepath, nrows=nrows)
 
     # Only consider shows that user has completed
     user_ratings = user_ratings[user_ratings["my_status"] == 2]
@@ -26,17 +27,18 @@ def read_data(nrows=None):
     return data
 
 
-def train_model(trainset, load=True):
+def train_model(trainset, load=True, filedir="", model_name="model"):
     # cross_validate(BaselineOnly(), data, verbose=True)
-    filename = 'model.joblib'
+    filename = f'{model_name}.joblib'
+    filepath = os.path.join(filedir, filename)
     if load == True:
-        algo = joblib.load(f'{filename}.gz')
+        algo = joblib.load(f'{filepath}.gz')
         return algo
 
     algo = SVD()
     algo.fit(trainset)
 
-    joblib.dump(algo, f'{filename}.gz', compress=('gzip', 3))
+    joblib.dump(algo, f'{filepath}.gz', compress=('gzip', 3))
     return algo
 
 def test_model(trainset, algo):
@@ -90,8 +92,8 @@ def get_top_n_recommendations(predictions, n=10):
     predictions.sort(key=lambda x: x.est, reverse=True)
     return predictions[:n]
 
-def get_all_anime_ids():
-    anime_data = pd.read_csv('../../../archive/anime_cleaned.csv')
+def get_all_anime_ids(filepath='../../../archive/anime_cleaned.csv'):
+    anime_data = pd.read_csv(filepath)
     return set(anime_data['anime_id'])
 
 def filter_unwatched_anime(all_anime_ids, user_anime_list):
