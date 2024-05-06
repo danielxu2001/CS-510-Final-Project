@@ -137,6 +137,7 @@ def generate_html_table(anime_data_df):
             <th>Synopsis</th>
             <th>Score</th>
             <th>Number of Scored Users</th>
+            <th>Estimated Rating</th>
         </tr>
     """
 
@@ -148,6 +149,7 @@ def generate_html_table(anime_data_df):
         score = anime_data['score']
         num_scoring_user = anime_data['num_scoring_users']
         genres = anime_data['genres']
+        estimated_rating = anime_data['estimated_rating']
 
         table_html += f"""
         <tr>
@@ -157,8 +159,10 @@ def generate_html_table(anime_data_df):
             <td>{synopsis}</td>
             <td>{score}</td>
             <td>{num_scoring_user}</td>
+            <td>{round(estimated_rating, 2)}</td>
         </tr>
         """
+        
 
     table_html += "</table>"
     return table_html
