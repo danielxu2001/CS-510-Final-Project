@@ -8,7 +8,7 @@ from anime_recommendation_system.api.recommend import predict_ratings_for_unwatc
 import pandas as pd
 
 ALL_IDS = get_all_anime_ids(filepath='../archive/anime_cleaned.csv')
-ALGO = train_model(trainset=None, load=True, filedir='anime_recommendation_system/api/', model_name='model_svd_300k')
+ALGO = train_model(trainset=None, load=True, filedir='anime_recommendation_system/api/', model_name='svd3mil')
 
 @ensure_csrf_cookie
 def my_view(request):

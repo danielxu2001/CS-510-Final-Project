@@ -158,7 +158,7 @@ def generate_html_table(anime_data_df):
             <td>{genres}</td>
             <td>{synopsis}</td>
             <td>{score}</td>
-            <td>{num_scoring_user}</td>
+            <td>{f"{num_scoring_user:,}"}</td>
             <td>{round(estimated_rating, 2)}</td>
         </tr>
         """
