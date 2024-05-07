@@ -1,59 +1,89 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recommendation System</title>
+    <title>AnimeRex</title>
     <style>
+        html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-image: url("../background.jpeg");
-            background-size: cover;
+            height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            background-image: url('{% static "background.jpeg" %}');
+            background-size: cover;
+            background-attachment: fixed; 
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
             z-index: -1;
         }
+
         .container {
             width: 800px;
             padding: 20px;
-            background-color: #fff;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
             border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 1;
         }
+
         h1 {
             text-align: center;
-            color: #333;
         }
+
         form {
             display: flex;
             justify-content: center;
             align-items: center;
             margin-top: 20px;
         }
+
         input[type="text"] {
             padding: 10px;
             width: 70%;
             border-radius: 5px;
-            border: 1px solid #ccc;
+            border: 1px solid #777;
+            background-color: #333;
+            color: #ddd;
             font-size: 16px;
             margin-right: 10px;
         }
+
         input[type="submit"] {
             padding: 10px 20px;
-            background-color: #007bff;
-            color: #fff;
+            background-color: #0056b3;
             border: none;
             border-radius: 5px;
             font-size: 16px;
             cursor: pointer;
+            color: #ddd;
         }
+
         input[type="submit"]:hover {
-            background-color: #0056b3;
+            background-color: #00408b;
         }
+
         .results {
             margin-top: 20px;
         }
@@ -62,8 +92,8 @@
 <body>
     <div class="container">
         <h1>Recommendation System</h1>
-        <form method="post" action="{% url 'search' %}">
-            {% csrf_token %}
+        <form method="post" action="/search/">
+            <input type="hidden" name="csrfmiddlewaretoken" value="2V1BIaiPYfP0oAJw2fsYmggNZ4E9kMqWTx5BnL9vQ97sjPTL3Re2rwzHfM5yM845">
             <input type="text" name="query" placeholder="Enter your username...">
             <input type="submit" value="Search">
         </form>
