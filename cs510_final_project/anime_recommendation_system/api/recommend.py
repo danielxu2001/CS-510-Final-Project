@@ -1,18 +1,21 @@
 import pandas as pd
 from surprise import BaselineOnly, Dataset, Reader, SVD, accuracy
+from surprise import KNNBasic
 from surprise.model_selection import cross_validate
+from surprise import CoClustering
 import joblib
 import random
 import numpy as np
 from collections import defaultdict
 import os
+from sklearn.cluster import KMeans
 
 def set_seed(seed):
     random.seed(seed)
     np.random.seed(seed)
 
-def read_data(nrows=None, filepath='../../../archive/animelists_cleaned.csv'):
-    user_ratings = pd.read_csv(filepath, nrows=nrows)
+def read_data(nrows=None):
+    user_ratings = pd.read_csv('../../../archive/animelists_cleaned.csv', nrows=nrows)
 
     # Only consider shows that user has completed
     user_ratings = user_ratings[user_ratings["my_status"] == 2]
@@ -40,6 +43,78 @@ def train_model(trainset, load=True, filedir="", model_name="model"):
 
     joblib.dump(algo, f'{filepath}.gz', compress=('gzip', 3))
     return algo
+def train_knn_model(trainset, load=True):
+    # Specify the filename for saving the model
+    filename = 'knn_model3m.joblib'
+    
+    try:
+        algo = joblib.load(f'{filename}.gz')
+    except EOFError as e:
+        print(f"Error loading file: {e}")
+
+    # Train the k-NN model
+    algo = KNNBasic()
+    algo.fit(trainset)
+
+    # Save the trained model
+    joblib.dump(algo, f'{filename}.gz', compress=('gzip', 3))
+    
+    return algo
+
+
+def train_coclustering(trainset, load=True):
+    # Specify the filename for saving the model
+    filename = 'coclustering3m.joblib'
+    
+    try:
+        algo = joblib.load(f'{filename}.gz')
+    except EOFError as e:
+        print(f"Error loading file: {e}")
+
+    # Train the k-NN model
+    algo = CoClustering()
+    algo.fit(trainset)
+
+    # Save the trained model
+    joblib.dump(algo, f'{filename}.gz', compress=('gzip', 3))
+    return algo
+def train_knn_model(trainset, load=True):
+    # Specify the filename for saving the model
+    filename = 'knn_model300k.joblib'
+    
+    try:
+        algo = joblib.load(f'{filename}.gz')
+    except EOFError as e:
+        print(f"Error loading file: {e}")
+
+    # Train the k-NN model
+    algo = KNNBasic()
+    algo.fit(trainset)
+
+    # Save the trained model
+    joblib.dump(algo, f'{filename}.gz', compress=('gzip', 3))
+    
+    return algo
+
+
+def train_coclustering(trainset, load=True):
+    # Specify the filename for saving the model
+    filename = 'coclustering3m.joblib'
+    
+    try:
+        algo = joblib.load(f'{filename}.gz')
+    except EOFError as e:
+        print(f"Error loading file: {e}")
+
+    # Train the k-NN model
+    algo = CoClustering()
+    algo.fit(trainset)
+
+    # Save the trained model
+    joblib.dump(algo, f'{filename}.gz', compress=('gzip', 3))
+    return algo
+
+
 
 def test_model(trainset, algo):
     testset = trainset.build_anti_testset()
@@ -106,45 +181,49 @@ def predict_ratings_for_unwatched(user, unwatched_anime_ids, algo):
     predictions = [algo.predict(user, anime_id) for anime_id in unwatched_anime_ids]
     return predictions
 
+
 if __name__ == "__main__":
 
     LOAD = True
     set_seed(0)
 
-    data = read_data(nrows=1000)
+    data = read_data(nrows=300000)
     trainset = data.build_full_trainset()
-
-    algo = train_model(trainset, load=LOAD)
-    # predictions = test_model(trainset, algo)
-    # top_n =  get_top_n(predictions)
-    # # Print the recommended items for each user
+    # del data
+    # algo = train_model(trainset, load=LOAD)
+    algo2 = train_knn_model(trainset)
+    predictions = test_model(trainset, algo2)
+    top_n =  get_top_n(predictions)
+    # Print the recommended items for each user
     # for uid, user_ratings in top_n.items():
     #     print(uid, [iid for (iid, _) in user_ratings])
 
 
-    ids = get_all_anime_ids()
+    # ids = get_all_anime_ids()
 
-    from api import get_user_anime_list, get_anime_data
+    # from api import get_user_anime_list, get_anime_data
 
-    username = 'Damonashu'
-    user_anime_list = get_user_anime_list(username)
+    # username = 'Damonashu'
+    # user_anime_list = get_user_anime_list(username)
 
-    unwatched_anime_ids = filter_unwatched_anime(ids, user_anime_list)
-    predictions = predict_ratings_for_unwatched(username, unwatched_anime_ids, algo)
+    # unwatched_anime_ids = filter_unwatched_anime(ids, user_anime_list)
+    # predictions = predict_ratings_for_unwatched(username, unwatched_anime_ids, algo)
 
-    top_recommendations = get_top_n_recommendations(predictions)
+    # top_recommendations = get_top_n_recommendations(predictions)
 
-    for pred in top_recommendations:
-        anime_data = get_anime_data(pred.iid)
-        print(anime_data)
-        print(f"Anime : {pred.iid}, Estimated Rating: {pred.est}")
-        print("\n\n")
-    # print([(pred.iid, pred.est) for pred in top_recommendations])
+    # for pred in top_recommendations:
+    #     anime_data = get_anime_data(pred.iid)
+    #     # print(anime_data)
+    #     # print(f"Anime : {pred.iid}, Estimated Rating: {pred.est}")
+    #     # print("\n\n")
+    # # print([(pred.iid, pred.est) for pred in top_recommendations])
 
     
 
-    # predictions = predict_user_recommendations(user_anime_list, algo)
-    # top_n =  get_top_n(predictions)
-    # # Print the recommended items for each user
-    # for uid, user_ratings in top_n.items():
-    #     print(uid, [iid for (iid, _) in user_ratings])
+    # # predictions = predict_user_recommendations(user_anime_list, algo)
+    # # top_n =  get_top_n(predictions)
+    # # # Print the recommended items for each user
+    # # for uid, user_ratings in top_n.items():
+    # #     print(uid, [iid for (iid, _) in user_ratings])
+
+
