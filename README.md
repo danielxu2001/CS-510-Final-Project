@@ -17,6 +17,12 @@ pip install -r requirements.txt
 ### Data
 The data used in this project is from the Kaggle dataset [MyAnimeList Dataset](https://www.kaggle.com/azathoth42/myanimelist). Download and extract the data into the `archive` directory on the root level.
 
+### API Key
+Create a MyAnimeList account and obtain an API key from [MyAnimeList API](https://myanimelist.net/apiconfig). Create a `.env` file in the root directory and add the following line:
+```bash
+MYANIMELIST_CLIENT_ID=<your_client_id>
+```
+
 ### Usage
 ```bash
 cd cs510_final_project
